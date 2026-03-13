@@ -14,13 +14,18 @@ type APIRepository interface {
 	GetOrderByID(ctx context.Context, orderID uuid.UUID) (*models.Order, error)
 }
 
-type orderService struct {
-	repo   APIRepository
-	logger logger.Logger
+type Publisher interface {
+	PublishEvent(order *models.Order) error
 }
 
-func NewOrderService(r APIRepository, l logger.Logger) *orderService {
-	return &orderService{repo: r, logger: l}
+type orderService struct {
+	repo      APIRepository
+	logger    logger.Logger
+	publisher Publisher
+}
+
+func NewOrderService(r APIRepository, l logger.Logger, p Publisher) *orderService {
+	return &orderService{repo: r, logger: l, publisher: p}
 }
 
 func (s *orderService) CreateOrder(ctx context.Context, request *dto.CreateOrderRequest,
@@ -57,6 +62,12 @@ func (s *orderService) CreateOrder(ctx context.Context, request *dto.CreateOrder
 	if err != nil {
 		return nil, err
 	}
+
+	go func() {
+		if err := s.publisher.PublishEvent(order); err != nil {
+			s.logger.Error("publish event", "error", err)
+		}
+	}()
 
 	return &dto.OrderResponse{
 		ID:      order.ID,
