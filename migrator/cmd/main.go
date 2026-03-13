@@ -13,24 +13,24 @@ import (
 )
 
 const (
-	CREATE_ITEMS_TABLE string = `
-		CREATE TABLE IF NOT EXISTS items (
-				id UUID PRIMARY KEY NOT NULL,
-			title TEXT NOT NULL,
-			price NUMERIC(10, 2) check (price > 0) NOT NULL,
-			quantity INT check (quantity > 0) NOT NULL,
+	CREATE_ORDERS_TABLE string = `
+		CREATE TABLE IF NOT EXISTS orders (
+			id UUID PRIMARY KEY NOT NULL,
+			status varchar(20) NOT NULL,
+			total_price NUMERIC(10, 2) check (total_price > 0) NOT NULL,
+			total_quantity INT check (total_quantity > 0) NOT NULL,
 			created TIMESTAMPTZ DEFAULT NOW(),
 			updated TIMESTAMPTZ DEFAULT NOW()
 		);
 	`
 
-	CREATE_ORDERS_TABLE string = `
-		CREATE TABLE IF NOT EXISTS orders (
+	CREATE_ITEMS_TABLE string = `
+		CREATE TABLE IF NOT EXISTS items (
 			id UUID PRIMARY KEY NOT NULL,
-			item_id UUID NOT NULL REFERENCES items(id) ON DELETE CASCADE,
-			status varchar(20) NOT NULL,
-			total_price NUMERIC(10, 2) check (total_price > 0) NOT NULL,
-			total_quantity INT check (total_quantity > 0) NOT NULL,
+			order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+			title TEXT NOT NULL,
+			price NUMERIC(10, 2) check (price > 0) NOT NULL,
+			quantity INT check (quantity > 0) NOT NULL,
 			created TIMESTAMPTZ DEFAULT NOW(),
 			updated TIMESTAMPTZ DEFAULT NOW()
 		);
@@ -83,13 +83,13 @@ func initMigrations(ctx context.Context, psql *storage.Postgres, logger logger.L
 		}
 	}()
 
-	if _, err := tx.ExecContext(ctx, CREATE_ITEMS_TABLE); err != nil {
-		logger.Error("exec items", "error", err)
+	if _, err := tx.ExecContext(ctx, CREATE_ORDERS_TABLE); err != nil {
+		logger.Error("exec orders", "error", err)
 		os.Exit(1)
 	}
 
-	if _, err := tx.ExecContext(ctx, CREATE_ORDERS_TABLE); err != nil {
-		logger.Error("exec orders", "error", err)
+	if _, err := tx.ExecContext(ctx, CREATE_ITEMS_TABLE); err != nil {
+		logger.Error("exec items", "error", err)
 		os.Exit(1)
 	}
 

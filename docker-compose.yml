@@ -31,10 +31,18 @@ services:
   order-service:
     build:
       context: order-service
+    environment:
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_SSL_MODE: ${POSTGRES_SSL_MODE}
     ports:
       - "8080:8080"
     depends_on:
       - migrator
+      - postgres
 
 volumes:
   postgres_data:
