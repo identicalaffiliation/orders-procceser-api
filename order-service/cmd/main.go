@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	fmt.Fprintln(os.Stdout, fmt.Sprint("Hello API! :)"))
+	fmt.Fprintln(os.Stdout, "Hello API! :)") // nolint: errcheck
 }
