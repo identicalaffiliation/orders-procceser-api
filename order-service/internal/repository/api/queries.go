@@ -34,4 +34,18 @@ const (
 		)
 		RETURNING id, created
 	`
+
+	SELECT_ORDER_BY_ID string = `
+		SELECT 
+			id,
+			status,
+			total_price,
+			total_quantity,
+			created,
+			updated
+		FROM
+			orders
+		WHERE
+			id = $1
+	`
 )

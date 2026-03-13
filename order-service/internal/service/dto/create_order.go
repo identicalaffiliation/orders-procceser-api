@@ -17,7 +17,7 @@ type items struct {
 	Quantity int     `json:"quantity"`
 }
 
-type CreateOrderResponse struct {
+type OrderResponse struct {
 	ID      uuid.UUID     `json:"id"`
 	Status  models.Status `json:"status"`
 	Created time.Time     `json:"created"`

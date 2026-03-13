@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/identicalaffiliation/orders-procceser-api/order-service/internal/logger"
 	"github.com/identicalaffiliation/orders-procceser-api/order-service/internal/repository/models"
 	"github.com/identicalaffiliation/orders-procceser-api/order-service/internal/repository/storage"
@@ -27,4 +28,14 @@ func (r *ordersRepository) CreateOrder(ctx context.Context, tx *sqlx.Tx, order *
 	}
 
 	return order, nil
+}
+
+func (r *ordersRepository) GetOrder(ctx context.Context, orderID uuid.UUID) (*models.Order, error) {
+	var order models.Order
+	if err := r.db.DB.GetContext(ctx, &order, SELECT_ORDER_BY_ID, orderID); err != nil {
+		r.logger.Error("select order by id", "error", err)
+		return nil, fmt.Errorf("select order: %w", err)
+	}
+
+	return &order, nil
 }

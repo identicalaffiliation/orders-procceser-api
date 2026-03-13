@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/identicalaffiliation/orders-procceser-api/order-service/internal/logger"
 	"github.com/identicalaffiliation/orders-procceser-api/order-service/internal/repository/models"
 	"github.com/identicalaffiliation/orders-procceser-api/order-service/internal/repository/storage"
@@ -23,6 +24,7 @@ type ItemsRepository interface {
 
 type OrdersRepository interface {
 	CreateOrder(ctx context.Context, tx *sqlx.Tx, order *models.Order) (*models.Order, error)
+	GetOrder(ctx context.Context, orderID uuid.UUID) (*models.Order, error)
 }
 
 type apiRepository struct {
@@ -77,4 +79,8 @@ func (r *apiRepository) CreateOrderAndItems(ctx context.Context, orderWithItems 
 	r.logger.Debug("order created in database")
 
 	return order, nil
+}
+
+func (r *apiRepository) GetOrderByID(ctx context.Context, orderID uuid.UUID) (*models.Order, error) {
+	return r.ordersRepository.GetOrder(ctx, orderID)
 }

@@ -11,6 +11,7 @@ import (
 
 type APIRepository interface {
 	CreateOrderAndItems(ctx context.Context, orderWithItems *models.OrderWithItems) (*models.Order, error)
+	GetOrderByID(ctx context.Context, orderID uuid.UUID) (*models.Order, error)
 }
 
 type orderService struct {
@@ -23,7 +24,7 @@ func NewOrderService(r APIRepository, l logger.Logger) *orderService {
 }
 
 func (s *orderService) CreateOrder(ctx context.Context, request *dto.CreateOrderRequest,
-) (*dto.CreateOrderResponse, error) {
+) (*dto.OrderResponse, error) {
 	var (
 		totalPrice    float64
 		totalQuantity int
@@ -57,7 +58,20 @@ func (s *orderService) CreateOrder(ctx context.Context, request *dto.CreateOrder
 		return nil, err
 	}
 
-	return &dto.CreateOrderResponse{
+	return &dto.OrderResponse{
+		ID:      order.ID,
+		Status:  order.Status,
+		Created: order.Created,
+	}, nil
+}
+
+func (s *orderService) GetOrderByID(ctx context.Context, orderID uuid.UUID) (*dto.OrderResponse, error) {
+	order, err := s.repo.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.OrderResponse{
 		ID:      order.ID,
 		Status:  order.Status,
 		Created: order.Created,
