@@ -6,9 +6,10 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-type MigratorConfig struct {
+type ServiceConfig struct {
 	PostgresConfig postgresConfig
-	LoggerConfig   loggerConfig  `yaml:"logger"`
+	LoggerConfig   loggerConfig `yaml:"logger"`
+	RabbitMQConfig rabbitConfig
 	Timeout        time.Duration `yaml:"timeout"`
 }
 
@@ -25,8 +26,13 @@ type loggerConfig struct {
 	Level string `yaml:"level"`
 }
 
-func MustLoadConfig(configPath string) *MigratorConfig {
-	cfg := new(MigratorConfig)
+type rabbitConfig struct {
+	URI      string `env:"RABBITMQ_URI"`
+	Exchange string `env:"RABBITMQ_EXCHANGE"`
+}
+
+func MustLoadConfig(configPath string) *ServiceConfig {
+	cfg := new(ServiceConfig)
 	if err := cleanenv.ReadEnv(cfg); err != nil {
 		panic(err)
 	}

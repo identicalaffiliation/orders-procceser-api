@@ -14,7 +14,14 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-
+  rabbitmq:
+    image: rabbitmq:latest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
   migrator:
     build:
       context: migrator
@@ -43,6 +50,7 @@ services:
     depends_on:
       - migrator
       - postgres
+      - rabbitmq
 
 volumes:
   postgres_data:

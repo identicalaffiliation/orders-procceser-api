@@ -16,7 +16,7 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewConnect(cfg *config.MigratorConfig) (*Postgres, error) {
+func NewConnect(cfg *config.ServiceConfig) (*Postgres, error) {
 	psql, err := sqlx.Open(POSTGRES_DRIVER_NAME, getDataSourceName(cfg))
 	if err != nil {
 		return nil, fmt.Errorf("open postgres: %w", err)
@@ -29,7 +29,7 @@ func NewConnect(cfg *config.MigratorConfig) (*Postgres, error) {
 	return &Postgres{DB: psql}, nil
 }
 
-func getDataSourceName(cfg *config.MigratorConfig) string {
+func getDataSourceName(cfg *config.ServiceConfig) string {
 	return fmt.Sprintf("port=%s host=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.PostgresConfig.Port, cfg.PostgresConfig.Host, cfg.PostgresConfig.User,
 		cfg.PostgresConfig.Password, cfg.PostgresConfig.DBname,

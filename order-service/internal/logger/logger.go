@@ -16,7 +16,7 @@ type slogger struct {
 	logger *slog.Logger
 }
 
-func NewLogger(cfg *config.MigratorConfig) Logger {
+func NewLogger(cfg *config.ServiceConfig) Logger {
 	var l slog.Level
 	switch cfg.LoggerConfig.Level {
 	case "debug":
