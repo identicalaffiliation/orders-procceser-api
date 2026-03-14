@@ -27,13 +27,13 @@ func NewBroker(cfg *config.ServiceConfig) (*RabbitMQ, error) {
 
 	ch, err := conn.Channel()
 	if err != nil {
-		conn.Close()
+		conn.Close() // nolint:errcheck, gosec
 		return nil, fmt.Errorf("open conn channel: %w", err)
 	}
 
 	if err := ch.ExchangeDeclare(cfg.RabbitMQConfig.Exchange, TOPIC,
 		true, false, false, false, nil); err != nil {
-		conn.Close()
+		conn.Close() // nolint:errcheck, gosec
 		return nil, fmt.Errorf("declare exchange: %w", err)
 	}
 
@@ -42,7 +42,7 @@ func NewBroker(cfg *config.ServiceConfig) (*RabbitMQ, error) {
 
 func (r *RabbitMQ) Close() error {
 	if err := r.channel.Close(); err != nil {
-		r.conn.Close()
+		r.conn.Close() // nolint:errcheck, gosec
 		return fmt.Errorf("close rabbit channel: %w", err)
 	}
 
@@ -60,8 +60,17 @@ func (r *RabbitMQ) PublishEvent(order *models.Order) error {
 		return fmt.Errorf("marshal order to message: %w", err)
 	}
 
+	queue, err := r.channel.QueueDeclare("orders_queue", true, false, false, false, nil)
+	if err != nil {
+		return fmt.Errorf("declare queue: %w", err)
+	}
+
+	if err := r.channel.QueueBind(queue.Name, "orders.created", r.exchange, false, nil); err != nil {
+		return fmt.Errorf("bind queue: %w", err)
+	}
+
 	// some shi must be from config.yml but now i want to sleep a lot
-	if err := r.channel.Publish(r.exchange, "order.created", false, false, amqp.Publishing{
+	if err := r.channel.Publish(r.exchange, "orders.created", false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        body,
 	}); err != nil {

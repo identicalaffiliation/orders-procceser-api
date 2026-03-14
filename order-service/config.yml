@@ -1,6 +1,8 @@
 logger:
   level: "debug"
 
-server:
+api:
   port: "8080"
   host: "0.0.0.0"
+
+timeout: 15s

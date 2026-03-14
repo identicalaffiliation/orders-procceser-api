@@ -34,8 +34,8 @@ type apiRepository struct {
 	logger           logger.Logger
 }
 
-func NewAPIRepository(d *storage.Postgres, ir ItemsRepository, or OrdersRepository, l logger.Logger) *apiRepository {
-	return &apiRepository{db: d, itemsRepository: ir, ordersRepository: or, logger: l}
+func NewAPIRepository(d *storage.Postgres, l logger.Logger) *apiRepository {
+	return &apiRepository{db: d, itemsRepository: newItemsRepository(d, l), ordersRepository: newOrdersRepository(d, l), logger: l}
 }
 
 func (r *apiRepository) CreateOrderAndItems(ctx context.Context, orderWithItems *models.OrderWithItems) (*models.Order, error) {
@@ -51,16 +51,6 @@ func (r *apiRepository) CreateOrderAndItems(ctx context.Context, orderWithItems 
 		}
 	}()
 
-	items, err := r.itemsRepository.CreateItems(ctx, tx, orderWithItems.Items)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(items) == 0 {
-		r.logger.Error("empty items slice", "error", ErrEmptyItems)
-		return nil, ErrEmptyItems
-	}
-
 	order, err := r.ordersRepository.CreateOrder(ctx, tx, orderWithItems.Order)
 	if err != nil {
 		return nil, err
@@ -69,6 +59,16 @@ func (r *apiRepository) CreateOrderAndItems(ctx context.Context, orderWithItems 
 	if order == nil {
 		r.logger.Error("empty order struct", "error", err)
 		return nil, ErrEmptyOrder
+	}
+
+	items, err := r.itemsRepository.CreateItems(ctx, tx, orderWithItems.Items)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(items) == 0 {
+		r.logger.Error("empty items slice", "error", ErrEmptyItems)
+		return nil, ErrEmptyItems
 	}
 
 	if err := tx.Commit(); err != nil {

@@ -10,6 +10,7 @@ type ServiceConfig struct {
 	PostgresConfig postgresConfig
 	LoggerConfig   loggerConfig `yaml:"logger"`
 	RabbitMQConfig rabbitConfig
+	ServerConfig   serverConfig  `yaml:"api"`
 	Timeout        time.Duration `yaml:"timeout"`
 }
 
@@ -29,6 +30,11 @@ type loggerConfig struct {
 type rabbitConfig struct {
 	URI      string `env:"RABBITMQ_URI"`
 	Exchange string `env:"RABBITMQ_EXCHANGE"`
+}
+
+type serverConfig struct {
+	Port string `yaml:"port"`
+	Host string `yaml:"host"`
 }
 
 func MustLoadConfig(configPath string) *ServiceConfig {

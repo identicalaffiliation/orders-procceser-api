@@ -16,7 +16,7 @@ type ordersRepository struct {
 	logger logger.Logger
 }
 
-func NewOrdersRepository(db *storage.Postgres, l logger.Logger) *ordersRepository {
+func newOrdersRepository(db *storage.Postgres, l logger.Logger) *ordersRepository {
 	return &ordersRepository{db: db, logger: l}
 }
 

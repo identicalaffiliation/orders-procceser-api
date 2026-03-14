@@ -15,7 +15,7 @@ type itemsRepository struct {
 	logger logger.Logger
 }
 
-func NewItemsRepository(db *storage.Postgres, l logger.Logger) *itemsRepository {
+func newItemsRepository(db *storage.Postgres, l logger.Logger) *itemsRepository {
 	return &itemsRepository{db: db, logger: l}
 }
 

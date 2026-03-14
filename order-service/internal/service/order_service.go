@@ -63,11 +63,13 @@ func (s *orderService) CreateOrder(ctx context.Context, request *dto.CreateOrder
 		return nil, err
 	}
 
-	go func() {
-		if err := s.publisher.PublishEvent(order); err != nil {
-			s.logger.Error("publish event", "error", err)
-		}
-	}()
+	s.logger.Debug("calling PublishEvent", "order_id", order.ID)
+
+	if err := s.publisher.PublishEvent(order); err != nil {
+		s.logger.Error("publish event", "error", err)
+	} else {
+		s.logger.Debug("PublishEvent completed successfully")
+	}
 
 	return &dto.OrderResponse{
 		ID:      order.ID,

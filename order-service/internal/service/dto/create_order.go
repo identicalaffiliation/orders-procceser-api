@@ -8,13 +8,13 @@ import (
 )
 
 type CreateOrderRequest struct {
-	Items []items `json:"items"`
+	Items []items `json:"items" validate:"required"`
 }
 
 type items struct {
-	Title    string  `json:"title"`
-	Price    float64 `json:"price"`
-	Quantity int     `json:"quantity"`
+	Title    string  `json:"title" validate:"required"`
+	Price    float64 `json:"price" validate:"required,gt=0"`
+	Quantity int     `json:"quantity" validate:"required,min=1"`
 }
 
 type OrderResponse struct {
